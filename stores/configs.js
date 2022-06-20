@@ -2,8 +2,8 @@ const { Models: { DataStore, DataObject } } = require('frame');
 const KEYS = {
 	id: { },
 	server_id: { },
-	responses: { patch: true },
-	roles: { patch: true }
+	responses: { patch: true }, // channel for responses, implement later
+	role: { patch: true } // required role to test things
 }
 
 class Config extends DataObject {
@@ -31,7 +31,7 @@ class ConfigStore extends DataStore {
 			id			serial primary key,
 			server_id	text,
 			responses	text,
-			roles		text[]
+			role		text
 		)`)
 	}
 
@@ -40,10 +40,10 @@ class ConfigStore extends DataStore {
 			var c = await this.#db.query(`INSERT INTO configs (
 				server_id,
 				responses,
-				roles
+				role
 			) VALUES ($1,$2,$3)
 			RETURNING *`,
-			[data.server_id, data.responses, data.roles]);
+			[data.server_id, data.responses, data.role]);
 		} catch(e) {
 			console.log(e);
 			return Promise.reject(e)
@@ -106,3 +106,5 @@ class ConfigStore extends DataStore {
 		return;
 	}
 }
+
+module.exports = (bot, db) => new ConfigStore(bot, db);
