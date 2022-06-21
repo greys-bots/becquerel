@@ -50,6 +50,7 @@ class ProgramStore extends DataStore {
 	}
 
 	async create(data = {}) {
+		console.log(data);
 		try {
 			var c = await this.#db.query(`INSERT INTO programs (
 				server_id,
@@ -62,9 +63,9 @@ class ProgramStore extends DataStore {
 				open,
 				start,
 				ended
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+			) VALUES ($1, $2, find_unique('programs'), $3, $4, $5, $6, $7, $8, $9)
 			RETURNING *`,
-			[data.server_id, data.bot_id, data.hid, data.name,
+			[data.server_id.toString(), data.bot_id, data.name,
 			  data.description, data.color, data.role, data.open ?? true,
 			  data.start || new Date(), data.end]);
 		} catch(e) {
@@ -72,6 +73,7 @@ class ProgramStore extends DataStore {
 			return Promise.reject(e);
 		}
 
+		console.log(c.rows)
 		return await this.getID(c.rows[0].id);
 	}
 
@@ -92,7 +94,7 @@ class ProgramStore extends DataStore {
 	async getID(id) {
 		try {
 			var data = await this.#db.query(`select * from programs
-				where id = $2
+				where id = $1
 			`, [id]);
 		} catch(e) {
 			console.log(e);
@@ -101,6 +103,19 @@ class ProgramStore extends DataStore {
 
 		if(data.rows?.[0]) return new Program(this, KEYS, data.rows[0]);
 		else return new Program(this, KEYS, { });
+	}
+
+	async getAll(server) {
+		try {
+			var data = await this.#db.query(`select * from programs where server_id = $1`, [server]);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e);
+		}
+
+		if(data.rows?.[0]) {
+			return data.rows.map(p => new Program(this, KEYS, p));
+		} else return undefined;
 	}
 
 	async update(id, data = {}) {

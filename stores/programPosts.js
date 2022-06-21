@@ -12,7 +12,7 @@ class ProgramPost extends DataObject {
 
 	constructor(store, keys, data) {
 		super(store, keys, data);
-		this.#store;
+		this.#store = store;
 	}
 
 	async fetchProgram() {
@@ -35,7 +35,7 @@ class ProgramPost extends DataObject {
 			})
 		}
 
-		if(ctx.member.roles.has(this.prog.role)) {
+		if(ctx.member.roles.cache.has(this.prog.role)) {
 			await ctx.member.roles.remove(this.prog.role);
 			return await ctx.reply({
 				content: "You have been removed from the program.",
@@ -69,6 +69,16 @@ class ProgramPostStore extends DataStore {
 			message_id 	text,
 			program 	text
 		)`)
+
+		this.bot.on('interactionCreate', async (ctx) => {
+			if(!ctx.isButton()) return;
+			if(!ctx.customId.startsWith('prog-')) return;
+
+			var post = await this.get(ctx.message.id);
+			if(!post?.id) return;
+
+			await post.handleInteraction(ctx);
+		})
 	}
 
 	async create(data = {}) {
@@ -182,7 +192,7 @@ class ProgramPostStore extends DataStore {
 				if(!ch) ch = await guild.channels.fetch(post.channel_id);
 				var msg = await ch.messages.fetch(post.message_id);
 				var color;
-				if(prog.end.getTime() < new Date().getTime()) color = 0xaa5555;
+				if(!prog.open) color = 0xaa5555;
 				else if(prog.color) color = parseInt(prog.color, 16);
 				else color = 0x202020;
 
@@ -201,6 +211,8 @@ class ProgramPostStore extends DataStore {
 				continue;
 			}
 		}
+
+		if(errors) return Promise.reject(errors);
 	}
 }
 

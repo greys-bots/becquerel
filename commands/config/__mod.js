@@ -7,7 +7,7 @@ class Command extends SlashCommand {
 	constructor(bot, stores) {
 		super({
 			name: 'config',
-			description: "Commands for managing server configuration options",
+			description: "Commands for managing configuration options",
 			guildOnly: true,
 			permissions: ['MANAGE_MESSAGES'],
 		})
