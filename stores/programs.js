@@ -14,27 +14,18 @@ const KEYS = {
 }
 
 class Program extends DataObject {
-	#store;
-
 	constructor(store, keys, data) {
 		super(store, keys, data)
-		this.#store = store;
 	}
 }
 
 class ProgramStore extends DataStore {
-	bot;
-	#db;
-
 	constructor(bot, db) {
-		super();
-
-		this.bot = bot;
-		this.#db = db;
+		super(bot, db);
 	}
 
 	async init() {
-		await this.#db.query(`CREATE TABLE IF NOT EXISTS programs(
+		await this.db.query(`CREATE TABLE IF NOT EXISTS programs(
 			id 			SERIAL PRIMARY KEY,
 			server_id	TEXT,
 			bot_id		TEXT,
@@ -52,7 +43,7 @@ class ProgramStore extends DataStore {
 	async create(data = {}) {
 		console.log(data);
 		try {
-			var c = await this.#db.query(`INSERT INTO programs (
+			var c = await this.db.query(`INSERT INTO programs (
 				server_id,
 				bot_id,
 				hid,
@@ -79,7 +70,7 @@ class ProgramStore extends DataStore {
 
 	async get(server, hid) {
 		try {
-			var data = await this.#db.query(`select * from programs
+			var data = await this.db.query(`select * from programs
 				where server_id = $1 and hid = $2
 			`, [server, hid]);
 		} catch(e) {
@@ -93,7 +84,7 @@ class ProgramStore extends DataStore {
 
 	async getID(id) {
 		try {
-			var data = await this.#db.query(`select * from programs
+			var data = await this.db.query(`select * from programs
 				where id = $1
 			`, [id]);
 		} catch(e) {
@@ -107,7 +98,7 @@ class ProgramStore extends DataStore {
 
 	async getAll(server) {
 		try {
-			var data = await this.#db.query(`select * from programs where server_id = $1`, [server]);
+			var data = await this.db.query(`select * from programs where server_id = $1`, [server]);
 		} catch(e) {
 			console.log(e);
 			return Promise.reject(e);
@@ -120,7 +111,7 @@ class ProgramStore extends DataStore {
 
 	async update(id, data = {}) {
 		try {
-			await this.#db.query(`UPDATE programs SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
+			await this.db.query(`UPDATE programs SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
 		} catch(e) {
 			console.log(e);
 			return Promise.reject(e.message);
@@ -131,7 +122,7 @@ class ProgramStore extends DataStore {
 
 	async delete(id) {
 		try {
-			await this.#db.query(`DELETE FROM programs WHERE id = $1`, [id]);
+			await this.db.query(`DELETE FROM programs WHERE id = $1`, [id]);
 		} catch(e) {
 			console.log(e);
 			return Promise.reject(e.message);
@@ -142,7 +133,7 @@ class ProgramStore extends DataStore {
 
 	async deleteAll(server) {
 		try {
-			await this.#db.query(`DELETE FROM programs WHERE server_id = $1`, [server]);
+			await this.db.query(`DELETE FROM programs WHERE server_id = $1`, [server]);
 		} catch(e) {
 			console.log(e);
 			return Promise.reject(e.message);

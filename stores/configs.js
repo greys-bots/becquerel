@@ -7,27 +7,18 @@ const KEYS = {
 }
 
 class Config extends DataObject {
-	#store;
-
 	constructor(store, keys, data) {
 		super(store, keys, data);
-
-		this.#store = store;
 	}
 }
 
 class ConfigStore extends DataStore {
-	#bot;
-	#db;
-
 	constructor (bot, db) {
-		super();
-		this.#bot = bot;
-		this.#db = db;
+		super(bot, db);
 	}
 
 	async init() {
-		await this.#db.query(`create table if not exists configs (
+		await this.db.query(`create table if not exists configs (
 			id			serial primary key,
 			server_id	text,
 			responses	text,
@@ -37,7 +28,7 @@ class ConfigStore extends DataStore {
 
 	async create(data = {}) {
 		try {
-			var c = await this.#db.query(`INSERT INTO configs (
+			var c = await this.db.query(`INSERT INTO configs (
 				server_id,
 				responses,
 				role
@@ -54,7 +45,7 @@ class ConfigStore extends DataStore {
 
 	async get(server) {
 		try {
-			var c = await this.#db.query(`
+			var c = await this.db.query(`
 				select * from configs where
 				server_id = $1
 			`, [server])
@@ -70,7 +61,7 @@ class ConfigStore extends DataStore {
 
 	async getID(id) {
 		try {
-			var c = await this.#db.query(`
+			var c = await this.db.query(`
 				select * from configs where
 				id = $1
 			`, [id])
@@ -86,7 +77,7 @@ class ConfigStore extends DataStore {
 
 	async update(id, data = {}) {
 		try {
-			await this.#db.query(`UPDATE configs SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
+			await this.db.query(`UPDATE configs SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
 		} catch(e) {
 			console.log(e);
 			return Promise.reject(e.message);
@@ -97,7 +88,7 @@ class ConfigStore extends DataStore {
 
 	async delete(id) {
 		try {
-			await this.#db.query(`DELETE FROM configs WHERE id = $1`, [id]);
+			await this.db.query(`DELETE FROM configs WHERE id = $1`, [id]);
 		} catch(e) {
 			console.log(e);
 			return Promise.reject(e.message);
