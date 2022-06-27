@@ -19,7 +19,7 @@ const modal = {
 				label: 'Are you one of our supporters?',
 				placeholder:
 					`If so, enter your username and where you support us ` +
-					`(eg. github sponsors, patreon, ko-fi)\n` +
+					`(eg. patreon)\n` +
 					`If not, type "no" here`,
 				required: true,
 				max_length: 100,
@@ -47,11 +47,60 @@ class EntryPost extends DataObject {
 
 	async handleInteraction(ctx) {
 		if(ctx.user.bot) return;
+		var cfg = await this.store.bot.stores.configs.get(ctx.guild.id);
+		if(!cfg?.responses) return await ctx.reply({
+			content: "No response channel set. Ask a mod to fix this.",
+			ephemeral: true
+		})
+
+		var channel = await ctx.guild.channels.fetch(cfg.responses);
 
 		var m = await this.store.bot.utils.awaitModal(ctx, modal, ctx.user, true, 300000);
 		if(!m) return;
-		var answers = m.components.reduce((p, n) => p.concat(n.components), []);
-		console.log(answers);
+		var answers = m.components.reduce((p, n) => p.concat(n.components), [])
+			.map(c => c.value);
+		var questions = modal.components.reduce((p,n) => p.concat(n.components), [])
+			.map(c => c.label);
+
+		var response = await this.store.bot.stores.responses.create({
+			server_id: this.server_id,
+			user_id: ctx.user.id,
+			answers: JSON.stringify(answers)
+		})
+
+		var msg = await channel.send({
+			embeds: [{
+				title: 'Response received',
+				description: `User: ${ctx.user} (${ctx.user.tag} / ${ctx.user.id})`,
+				fields: questions.map((q,i) => ({
+					name: q,
+					value: answers[i]
+				}))
+			}],
+			components: [{type: 1, components: [
+				{
+					type: 2,
+					custom_id: 'resp-accept',
+					label: 'Accept',
+					style: 3,
+				},
+				{
+					type: 2,
+					custom_id: 'resp-deny',
+					label: 'Deny',
+					style: 4
+				}
+			]}]
+		})
+
+		var post = await this.store.bot.stores.responsePosts.create({
+			server_id: msg.guild.id,
+			channel_id: msg.channel.id,
+			message_id: msg.id,
+			response: response.hid
+		})
+
+		return await m.followUp('Response received.')
 	}
 }
 
@@ -118,10 +167,7 @@ class EntryPostStore extends DataStore {
 		}
 
 		if(data.rows?.[0]) {
-			var post = new EntryPost(this, KEYS, data.rows[0]);
-			var prog = await this.bot.stores.entrys.get(post.server_id, post.entry);
-			post.entry = prog;
-			return post;
+			return new EntryPost(this, KEYS, data.rows[0]);
 		} else return new EntryPost(this, KEYS, { });
 	}
 

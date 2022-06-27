@@ -3,8 +3,8 @@ const KEYS = {
 	id: { },
 	server_id: { },
 	user_id: { },
-	questions: { },
-	answers: { patch: true },
+	hid: { },
+	answers: { },
 	status: { patch: true },
 	sent: { }
 }
@@ -47,7 +47,8 @@ class ResponseStore extends DataStore {
 					sent
 				) values ($1, $2, find_unique('responses'), $3, $4, $5)
 				returning *
-			`);
+			`, [data.server_id, data.user_id, data.answers,
+				data.status ?? 0, data.sent || new Date()]);
 		} catch(e) {
 			console.log(e);
 			return Promise.reject(e);
@@ -73,7 +74,7 @@ class ResponseStore extends DataStore {
 		} else return new Response(this, KEYS, { server_id: server })
 	}
 
-	async get(id) {
+	async getID(id) {
 		try {
 			var c = await this.db.query(`
 				select * from responses

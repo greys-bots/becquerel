@@ -42,7 +42,7 @@ class ResponsePost extends DataObject {
 						components: []
 					})
 
-					var user = await this.store.bot.users.fetch(this.user_id);
+					var user = await this.store.bot.users.fetch(this.resp.user_id);
 					await user.send({embeds: [{
 						title: 'Response accepted.',
 						description: `Your response in ${ctx.message.guild.name} has been accepted.`,
