@@ -18,10 +18,8 @@ const modal = {
 				style: 1,
 				label: 'Are you one of our supporters?',
 				placeholder:
-					`If so, enter your username and where you support us ` +
-					`(eg. patreon)\n` +
-					`If not, type "no" here`,
-				required: true,
+					`If so, enter your username and where you support us`,
+				required: false,
 				max_length: 100,
 				min_length: 2
 			}]
@@ -68,14 +66,22 @@ class EntryPost extends DataObject {
 			answers: JSON.stringify(answers)
 		})
 
+		var footer = { text: 'No entry code given.' }
+		if(answers[1]?.length) {
+			var code = await this.store.bot.stores.entryCodes.get(this.server_id, answers[1]);
+			if(!code?.id) footer.text = 'Entry code invalid.';
+			else footer.text = 'Entry code is valid.'
+		}
+
 		var msg = await channel.send({
 			embeds: [{
 				title: 'Response received',
 				description: `User: ${ctx.user} (${ctx.user.tag} / ${ctx.user.id})`,
 				fields: questions.map((q,i) => ({
 					name: q,
-					value: answers[i]
-				}))
+					value: answers[i] || "(no response)"
+				})),
+				footer
 			}],
 			components: [{type: 1, components: [
 				{
@@ -93,7 +99,7 @@ class EntryPost extends DataObject {
 			]}]
 		})
 
-		var post = await this.store.bot.stores.responsePosts.create({
+		await this.store.bot.stores.responsePosts.create({
 			server_id: msg.guild.id,
 			channel_id: msg.channel.id,
 			message_id: msg.id,

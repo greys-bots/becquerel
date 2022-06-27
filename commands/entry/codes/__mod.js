@@ -6,10 +6,11 @@ class Command extends SlashCommand {
 
 	constructor(bot, stores) {
 		super({
-			name: 'entry',
-			description: "Commands for managing entry procedures",
+			name: 'codes',
+			description: "Commands for managing entry codes",
 			guildOnly: true,
-			permissions: ['MANAGE_MESSAGES']
+			permissions: ['MANAGE_MESSAGES'],
+			type: 2
 		})
 		this.#bot = bot;
 		this.#stores = stores;

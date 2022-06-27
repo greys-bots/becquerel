@@ -55,6 +55,12 @@ class ResponsePost extends DataObject {
 						await member.roles.add(config.role)
 					}
 
+					if(this.resp.answers[1].length) {
+						var code = await this.store.bot.stores.entryCodes.get(this.server_id, this.resp.answers[1]);
+						code.uses += 1;
+						await code.save();
+					}
+
 					await this.delete();
 				} catch(e) {
 					console.log(e);
@@ -79,13 +85,13 @@ class ResponsePost extends DataObject {
 					}]}]
 				}
 
-				var m = await this.bot.utils.awaitModal(ctx, modal, ctx.user, false, 300000)
+				var m = await this.store.bot.utils.awaitModal(ctx, modal, ctx.user, true, 300000)
 				if(!m) return ctx.reply("Action cancelled.");
 				var reason = m.fields.getField('reason').value.trim();
 				
 				var dt = new Date();
 				var embed = ctx.message.embeds[0];
-				embed.color = 0x55aa55;
+				embed.color = 0xaa5555;
 				embed.footer = { text: 'Response denied.' };
 				embed.timestamp = dt;
 
@@ -97,16 +103,17 @@ class ResponsePost extends DataObject {
 						components: []
 					})
 
-					var user = await this.store.bot.users.fetch(this.user_id);
+					var user = await this.store.bot.users.fetch(this.resp.user_id);
 					await user.send({embeds: [{
 						title: 'Response denied.',
 						description:
 							`Your response in ${ctx.message.guild.name} has been denied. Reason:\n` +
 							(reason ?? '(no reason given)'),
-						color: 0x55aa55,
+						color: 0xaa5555,
 						timestamp: dt
 					}]})
 
+					await m.followUp('Response denied successfully.');
 					await this.delete();
 				} catch(e) {
 					console.log(e);

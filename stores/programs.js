@@ -41,7 +41,6 @@ class ProgramStore extends DataStore {
 	}
 
 	async create(data = {}) {
-		console.log(data);
 		try {
 			var c = await this.db.query(`INSERT INTO programs (
 				server_id,
@@ -56,7 +55,7 @@ class ProgramStore extends DataStore {
 				ended
 			) VALUES ($1, $2, find_unique('programs'), $3, $4, $5, $6, $7, $8, $9)
 			RETURNING *`,
-			[data.server_id.toString(), data.bot_id, data.name,
+			[data.server_id, data.bot_id, data.name,
 			  data.description, data.color, data.role, data.open ?? true,
 			  data.start || new Date(), data.end]);
 		} catch(e) {
@@ -64,7 +63,6 @@ class ProgramStore extends DataStore {
 			return Promise.reject(e);
 		}
 
-		console.log(c.rows)
 		return await this.getID(c.rows[0].id);
 	}
 
