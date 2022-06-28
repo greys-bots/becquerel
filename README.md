@@ -17,7 +17,8 @@ Bec has commands for handling beta programs automatically, allowing you to creat
 ## Steps
 1. Download this repository somewhere handy
 2. Open a console in the root folder and run `npm i`
-3. Once packages are installed, run `node index` to run the bot
+3. Copy `.env.example`, rename to `.env`, and fill in the proper values
+4. Once all that's done, run `node index` to run the bot
 
 Becquerel should now be up and running.
 
