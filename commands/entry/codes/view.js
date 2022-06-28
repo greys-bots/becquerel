@@ -17,7 +17,8 @@ class Command extends SlashCommand {
 			usage: [
 				'- View all codes',
 				'[code] - View a specific code'
-			]
+			],
+			ephemeral: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
