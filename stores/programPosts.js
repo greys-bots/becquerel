@@ -25,7 +25,7 @@ class ProgramPost extends DataObject {
 		if(!this.prog.open)
 			return await ctx.reply({ ephemeral: true, content: `That program is no longer open.` });
 		var cfg = await this.store.bot.stores.configs.get(this.server_id);
-		if(cfg.role && !ctx.member.roles.has(cfg.role)) {
+		if(cfg.role && !ctx.member.roles.cache.has(cfg.role)) {
 			return await ctx.reply({
 				content: "You don't have permission to enter programs in this server.",
 				ephemeral: true
