@@ -68,6 +68,19 @@ class Command extends SlashCommand {
 					type: 1,
 					components: [{
 						type: 4,
+						custom_id: 'tests',
+						label: 'Current tests',
+						style: 2,
+						min_length: 1,
+						max_length: 2048,
+						placeholder: 'What this beta is testing',
+						required: true
+					}]
+				},
+				{
+					type: 1,
+					components: [{
+						type: 4,
 						custom_id: 'color',
 						label: 'Color',
 						style: 1,
@@ -76,7 +89,7 @@ class Command extends SlashCommand {
 						placeholder: 'Hex code or valid color name',
 						required: false
 					}]
-				},
+				}
 			]
 		}
 
@@ -85,6 +98,7 @@ class Command extends SlashCommand {
 		var data = { role, bot_id, server_id: ctx.guild.id };
 		data.name = m.fields.getField('name').value.trim();
 		data.description = m.fields.getField('description').value.trim();
+		data.tests = m.fields.getField('tests').value.trim();
 		var color = m.fields.getField('color').value?.trim();
 		if(color?.length) {
 			color = tc(color);

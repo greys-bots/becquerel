@@ -192,6 +192,10 @@ class ProgramPostStore extends DataStore {
 					title: prog.name,
 					description: prog.description,
 					color,
+					fields: [{
+						name: 'Current tests',
+						value: prog.tests
+					}],
 					footer: { text: `Interact below to enter or exit the program.` }
 				}]})
 			} catch(e) {

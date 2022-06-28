@@ -52,6 +52,10 @@ class Command extends SlashCommand {
 				title: program.name,
 				description: program.description,
 				color,
+				fields: [{
+					name: 'Current tests',
+					value: program.tests
+				}],
 				footer: {
 					text: 'Interact below to enter or exit the program.'
 				}

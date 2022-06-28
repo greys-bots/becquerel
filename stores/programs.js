@@ -6,6 +6,7 @@ const KEYS = {
 	hid: { },
 	name: { patch: true },
 	description: { patch: true },
+	tests: { patch: true },
 	color: { patch: true },
 	role: { patch: true },
 	open: { patch: true },
@@ -32,6 +33,7 @@ class ProgramStore extends DataStore {
 			hid			TEXT,
 			name 		TEXT,
 			description	TEXT,
+			tests 		TEXT,
 			color		TEXT,
 			role 		TEXT,
 			open 		BOOLEAN,
@@ -48,15 +50,16 @@ class ProgramStore extends DataStore {
 				hid,
 				name,
 				description,
+				tests,
 				color,
 				role,
 				open,
 				start,
 				ended
-			) VALUES ($1, $2, find_unique('programs'), $3, $4, $5, $6, $7, $8, $9)
+			) VALUES ($1, $2, find_unique('programs'), $3, $4, $5, $6, $7, $8, $9, $10)
 			RETURNING *`,
 			[data.server_id, data.bot_id, data.name,
-			  data.description, data.color, data.role, data.open ?? true,
+			  data.description, data.tests, data.color, data.role, data.open ?? true,
 			  data.start || new Date(), data.end]);
 		} catch(e) {
 			console.log(e);

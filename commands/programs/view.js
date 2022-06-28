@@ -44,6 +44,10 @@ class Command extends SlashCommand {
 				color,
 				fields: [
 					{
+						name: 'Current tests',
+						value: prog.tests
+					},
+					{
 						name: 'Role',
 						value: `<@&${prog.role}>`
 					},
@@ -68,6 +72,10 @@ class Command extends SlashCommand {
 					description: prog.description,
 					color,
 					fields: [
+						{
+							name: 'Current tests',
+							value: prog.tests
+						},
 						{
 							name: 'Role',
 							value: `<@&${prog.role}>`
